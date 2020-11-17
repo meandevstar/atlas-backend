@@ -10,7 +10,7 @@ validateEnv();
  * Create server app
  */
 const app = new App([
-  new AuthRoute(),
+  new AuthRoute('/auth'),
 ]);
 
 /**

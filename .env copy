@@ -1,0 +1,4 @@
+PORT=3000
+JWT_SECRET=explore_atlas
+JWT_EXPIRES=10h
+DB_URI=mongodb+srv://temp:MZYLOXvFl1TduurB@cluster0.hpm4c.mongodb.net/atlas

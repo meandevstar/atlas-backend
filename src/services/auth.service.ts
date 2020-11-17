@@ -1,16 +1,15 @@
 import * as jwt from 'jsonwebtoken';
-import { CreateUserDto } from '../dtos/users.dto';
 import { DataStoredInToken, TokenData } from '../interfaces/auth.interface';
 import userModel from '../models/users.model';
 
 class AuthService {
   public users = userModel;
 
-  public async signup(userData: CreateUserDto): Promise<any> {
+  public async signup(userData: any): Promise<any> {
     return {};
   }
 
-  public async login(userData: CreateUserDto): Promise<any> {
+  public async login(userData: any): Promise<any> {
     return {};
   }
 

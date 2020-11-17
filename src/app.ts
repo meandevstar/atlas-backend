@@ -4,6 +4,8 @@ import * as express from 'express';
 import helmet from 'helmet';
 import * as hpp from 'hpp';
 import * as logger from 'morgan';
+import * as mongoose from 'mongoose';
+import Config from './config';
 import Routes from './interfaces/routes.interface';
 
 class App {
@@ -13,8 +15,8 @@ class App {
 
   constructor(routes: Routes[]) {
     this.app = express();
-    this.port = process.env.PORT || 3000;
-    this.env = process.env.NODE_ENV === 'production' ? true : false;
+    this.port = Config.port;
+    this.env = Config.NODE_ENV === 'production' ? true : false;
 
     this.initializeMiddlewares();
     this.initializeRoutes(routes);
@@ -22,7 +24,7 @@ class App {
 
   public listen() {
     this.app.listen(this.port, () => {
-      console.log(`🚀 App listening on the port ${this.port}`);
+      console.log(`✅️ App listening on the port ${this.port}`);
     });
   }
 
@@ -30,6 +32,9 @@ class App {
     return this.app;
   }
 
+  /**
+   * Setup all middlewares for app
+   */
   private initializeMiddlewares() {
     if (this.env) {
       this.app.use(hpp());
@@ -46,10 +51,32 @@ class App {
     this.app.use(cookieParser());
   }
 
+  /**
+   * Setup route for app
+   * @param routes
+   */
   private initializeRoutes(routes: Routes[]) {
     routes.forEach((route) => {
       this.app.use('/', route.router);
     });
+  }
+
+  /**
+   * Create connection to MongoDB
+   */
+  public async initializeDB() {
+    try {
+      const connection = await mongoose.connect(Config.databaseUrl, {
+        useNewUrlParser    : true,
+        useUnifiedTopology : true,
+      });
+      console.info('✅️ DB successfully connected!');
+      return connection.connection.db;
+
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
   }
 }
 

@@ -6,11 +6,17 @@ import validateEnv from './utils/validateEnv';
 
 validateEnv();
 
+/**
+ * Create server app
+ */
 const app = new App([
   new AuthRoute(),
 ]);
 
+/**
+ * Start server app
+ */
 (async () => {
-  // await app.initializeDB();
+  await app.initializeDB();
   app.listen();
 })();

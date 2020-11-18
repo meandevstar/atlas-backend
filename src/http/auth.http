@@ -16,21 +16,11 @@ Content-Type: application/json
 }
 
 ###
-# Login
-POST {{baseURL}}/auth/login
+# signin
+POST {{baseURL}}/auth/signin
 Content-Type: application/json
 
 {
     "email": "example@gmail.com",
 	"password": "qwer12341"
-}
-
-###
-# Logout
-POST {{baseURL}}/auth/logout
-Content-Type: application/json
-
-{
-    "email": "lim@gmail.com",
-	"password": "q1w2e3r4"
 }

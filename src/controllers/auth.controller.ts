@@ -50,12 +50,12 @@ class AuthController {
   }
 
   /**
-   * User login
+   * User signIn
    * @param req
    * @param res
    * @param next
    */
-  public logIn = async (req: Request, res: Response, next: NextFunction) => {
+  public signIn = async (req: Request, res: Response, next: NextFunction) => {
     // Validate data from request object
     const schema = Joi.object({
       email    : Joi.string().email().required(),
@@ -99,18 +99,6 @@ class AuthController {
       console.error(err);
       res.status(500).json({ message: 'Server error' });
     }
-  }
-
-  /**
-   * User logout
-   * @param req
-   * @param res
-   * @param next
-   */
-  public logOut = async (req: Request, res: Response, next: NextFunction) => {
-    res.status(200).json({
-      message: 'success',
-    });
   }
 }
 

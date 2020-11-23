@@ -13,6 +13,7 @@ class TripController {
     const schema = Joi.object({
       tripName: Joi.string().required(),
       data : Joi.array().required(),
+      published: Joi.boolean(),
     });
     const { error, value } = schema.validate(req.body);
 
@@ -31,6 +32,7 @@ class TripController {
         _id         : tripData._id,
         tripName    : tripData.tripName,
         data        : tripData.data,
+        published   : tripData.published || false,
       };
 
       res.status(200).json({

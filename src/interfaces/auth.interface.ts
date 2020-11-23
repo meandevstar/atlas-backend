@@ -1,7 +1,8 @@
 import { Request } from 'express';
 
 export interface DataStoredInToken {
-  id: number;
+  id: string;
+  email: string;
 }
 
 export interface TokenData {

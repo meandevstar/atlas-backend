@@ -5,6 +5,7 @@ import { NextFunction, Request, Response } from 'express';
 import User from '../models/users.model';
 import { SALT_ROUNDS } from '../constants';
 import Config from '../config';
+import { DataStoredInToken } from 'interfaces/auth.interface';
 
 class AuthController {
   /**
@@ -85,7 +86,11 @@ class AuthController {
       }
 
       // Generate token
-      const token = jwt.sign({ email: userData.email }, Config.jwtSecret, Config.jwtExpires);
+      const tokenData: DataStoredInToken = {
+        id: userData._id,
+        email: userData.email,
+      };
+      const token = jwt.sign(tokenData, Config.jwtSecret, Config.jwtExpires);
 
       // Return
       const data = {

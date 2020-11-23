@@ -2,18 +2,18 @@ import { NextFunction, Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
 import HttpException from '../exceptions/HttpException';
 import { DataStoredInToken } from '../interfaces/auth.interface';
-import userModel from '../models/users.model';
+import User from '../models/users.model';
 
 function authMiddleware(req: Request, res: Response, next: NextFunction) {
-  const cookies = req.cookies;
+  const authorization = req.headers.authorization;
 
-  if (cookies && cookies.Authorization) {
+  if (authorization) {
     const secret = process.env.JWT_SECRET;
 
     try {
-      const verificationResponse = jwt.verify(cookies.Authorization, secret) as DataStoredInToken;
-      const userId = verificationResponse.id;
-      const findUser = userModel.find(user => user.id === userId);
+      const verificationResponse = jwt.verify(authorization.split(' ')[1], secret) as DataStoredInToken;
+      const userData = verificationResponse;
+      const findUser = User.findOne({ id: userData.id });
 
       if (findUser) {
         next();

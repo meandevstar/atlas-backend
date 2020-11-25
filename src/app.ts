@@ -40,7 +40,8 @@ class App {
       this.app.use(hpp());
       this.app.use(helmet());
       this.app.use(logger('combined'));
-      this.app.use(cors({ origin: 'your.domain.com', credentials: true }));
+      // TODO: need to handle in future
+      this.app.use(cors({ origin: true, credentials: true }));
     } else {
       this.app.use(logger('dev'));
       this.app.use(cors({ origin: true, credentials: true }));

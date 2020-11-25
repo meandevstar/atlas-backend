@@ -67,7 +67,36 @@ class TripController {
       const trips = await Trip.find({ userId: value.userId });
 
       res.status(200).json({
-        trips,
+        data: trips,
+      });
+
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Server error' });
+    }
+  }
+
+  /**
+   * Get trip by id
+   */
+  public getTripById = async (req: Request, res: Response, next: NextFunction) => {
+    // Validate data from request object
+    const schema = Joi.object({
+      tripId: Joi.string().required(),
+    });
+    const { error, value } = schema.validate(req.params);
+
+    // Error handling
+    if (error) {
+      const message = error.details.length > 0 ? error.details[0].message : 'Invalid request';
+      return res.status(400).json({ message });
+    }
+
+    try {
+      const trip = await Trip.findOne({ _id: value.tripId });
+
+      res.status(200).json({
+        data: trip,
       });
 
     } catch (err) {

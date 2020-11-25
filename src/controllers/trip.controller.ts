@@ -11,6 +11,7 @@ class TripController {
   public createTrip = async (req: Request, res: Response, next: NextFunction) => {
     // Validate data from request object
     const schema = Joi.object({
+      userId: Joi.string().required(),
       tripName: Joi.string().required(),
       data : Joi.array().required(),
       published: Joi.boolean(),
@@ -30,6 +31,7 @@ class TripController {
       const tripData = tripObj.toObject();
       const resData = {
         _id         : tripData._id,
+        userId      : tripData.userId,
         tripName    : tripData.tripName,
         data        : tripData.data,
         published   : tripData.published || false,

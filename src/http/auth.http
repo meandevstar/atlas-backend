@@ -38,10 +38,6 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVmYjUzZjVlZ
 
 ###
 # get all trips for given user
-GET {{baseURL}}/trip/get
+GET {{baseURL}}/trip/get/all/5fb53f5ede295d116aed0387
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVmYjUzZjVlZGUyOTVkMTE2YWVkMDM4NyIsImVtYWlsIjoidGVzdEBnbWFpbC5jb20iLCJpYXQiOjE2MDYyNjkwMTQsImV4cCI6MTYwNjMwNTAxNH0.4ApNEM3Rz61sjKvGyTGGuYaaYYkyibvAfF6GxnNKnqQ
-
-{
-    "userId": "5fb53f5ede295d116aed0387"
-}

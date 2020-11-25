@@ -55,7 +55,7 @@ class TripController {
     const schema = Joi.object({
       userId: Joi.string().required(),
     });
-    const { error, value } = schema.validate(req.body);
+    const { error, value } = schema.validate(req.params);
 
     // Error handling
     if (error) {

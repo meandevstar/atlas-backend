@@ -15,7 +15,7 @@ class AuthRoute implements Route {
 
   private initializeRoutes() {
     this.router.post('/create', authMiddleware, this.tripController.createTrip);
-    this.router.get('/get', authMiddleware, this.tripController.getAllTrips);
+    this.router.get('/get/all/:userId', authMiddleware, this.tripController.getAllTrips);
   }
 }
 

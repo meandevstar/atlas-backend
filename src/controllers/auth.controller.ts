@@ -105,6 +105,36 @@ class AuthController {
       res.status(500).json({ message: 'Server error' });
     }
   }
+
+  /**
+   * Check token
+   * @param req
+   * @param res
+   * @param next
+   */
+  public checkToken = async (req: Request, res: Response, next: NextFunction) => {
+    const authorization = req.headers.authorization;
+    const secret = process.env.JWT_SECRET;
+
+    try {
+      const tokenData = jwt.verify(authorization.split(' ')[1], secret) as DataStoredInToken;
+      const newToken = jwt.sign({ id: tokenData.id, email: tokenData.email }, Config.jwtSecret, Config.jwtExpires);
+
+      const userObj = await User.findById(tokenData.id);
+      const userData = userObj.toObject();
+      const data = {
+        _id         : userData._id,
+        email       : userData.email,
+        displayName : userData.displayName,
+      };
+
+      res.json({ token: newToken, user: data });
+
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Server error' });
+    }
+  }
 }
 
 export default AuthController;

@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 import Trip from '../models/trips.model';
 import Config from '../config';
 import * as aws from 'aws-sdk';
+import { v4 as uuidv4 } from 'uuid';
 
 class TripController {
 
@@ -173,9 +174,10 @@ class TripController {
    * @param next
    */
   public fileUpload = async (req: Request, res: Response, next: NextFunction) => {
+    const fileType = req.file.originalname.split('.').length === 2 ? req.file.originalname.split('.')[1] : 'jpg';
     const params: aws.S3.PutObjectRequest = {
       Bucket: this.S3_BUCKET,
-      Key: req.file.originalname,
+      Key: `${uuidv4()}.${fileType}`,
       Body: req.file.buffer,
     };
 
@@ -185,19 +187,7 @@ class TripController {
         res.status(422).send(err);
       }
 
-      const signedParams: aws.S3.PutObjectRequest = {
-        Bucket: this.S3_BUCKET,
-        Key: req.file.originalname,
-      };
-
-      this.s3.getSignedUrl('getObject', signedParams, (uErr: Error, url: string) => {
-        if (uErr) {
-          console.log(uErr.message);
-          res.status(422).send(uErr);
-        }
-
-        res.json({ fileURL: url });
-      });
+      res.json({ fileURL: data.Location });
     });
   }
 }

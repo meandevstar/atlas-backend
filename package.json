@@ -8,6 +8,7 @@
     "lint": "tslint -p tsconfig.json -c tslint.json"
   },
   "dependencies": {
+    "@types/uuid": "^8.3.0",
     "aws-sdk": "^2.799.0",
     "bcrypt": "^5.0.0",
     "body-parser": "^1.19.0",
@@ -31,7 +32,8 @@
     "swagger-ui-express": "^4.1.4",
     "ts-jest": "^26.4.4",
     "ts-node": "^9.0.0",
-    "typescript": "^4.0.5"
+    "typescript": "^4.0.5",
+    "uuid": "^8.3.1"
   },
   "devDependencies": {
     "@types/bcrypt": "^3.0.0",

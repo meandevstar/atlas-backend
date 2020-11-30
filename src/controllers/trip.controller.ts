@@ -173,11 +173,12 @@ class TripController {
    * @param res
    * @param next
    */
-  public fileUpload = async (req: Request, res: Response, next: NextFunction) => {
+  public fileUploadToS3 = async (req: Request, res: Response, next: NextFunction) => {
     const fileType = req.file.originalname.split('.').length === 2 ? req.file.originalname.split('.')[1] : 'jpg';
+    const key = `${uuidv4()}.${fileType}`;
     const params: aws.S3.PutObjectRequest = {
       Bucket: this.S3_BUCKET,
-      Key: `${uuidv4()}.${fileType}`,
+      Key: key,
       Body: req.file.buffer,
     };
 
@@ -187,7 +188,34 @@ class TripController {
         res.status(422).send(err);
       }
 
-      res.json({ fileURL: data.Location });
+      res.json({ fileURL: data.Location, fileKey: key });
+    });
+  }
+
+  /**
+   * Trip POI image remove
+   * @param req
+   * @param res
+   * @param next
+   */
+  public fileRemoveFromS3 = async (req: Request, res: Response, next: NextFunction) => {
+    const fileKey = req.params.key;
+    if (!fileKey) {
+      return res.status(400).json({ message: 'Invalid request!' });
+    }
+
+    const params: aws.S3.DeleteObjectRequest = {
+      Bucket: this.S3_BUCKET,
+      Key: fileKey,
+    };
+
+    this.s3.deleteObject(params, (err: Error, data: aws.S3.DeleteObjectOutput) => {
+      if (err) {
+        console.log(err.message);
+        res.status(422).send(err);
+      }
+
+      res.status(200).json({ message: 'Successfully removed' });
     });
   }
 }

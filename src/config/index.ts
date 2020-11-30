@@ -20,6 +20,10 @@ const config = {
     jwtExpires    : {
       expiresIn: process.env.JWT_EXPIRES,
     },
+    awsAccessKeyId      : process.env.AWS_ACCESS_KEY_ID,
+    awsSecretAccessKey  : process.env.AWS_SECRET_ACCESS_KEY,
+    awsS3Bucket         : process.env.S3_BUCKET,
+    awsRegion           : process.env.AWS_REGION,
   },
 };
 

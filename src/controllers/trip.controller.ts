@@ -2,8 +2,20 @@ import * as Joi from 'joi';
 import { NextFunction, Request, Response } from 'express';
 import Trip from '../models/trips.model';
 import Config from '../config';
+import * as aws from 'aws-sdk';
 
 class TripController {
+
+  private s3 = new aws.S3();
+  private S3_BUCKET = Config.awsS3Bucket;
+
+  constructor() {
+    aws.config.update({
+      secretAccessKey: Config.awsSecretAccessKey,
+      accessKeyId: Config.awsAccessKeyId,
+      region: Config.awsRegion,
+    });
+  }
 
   /**
    * Create new trip
@@ -152,6 +164,41 @@ class TripController {
       console.error(err);
       res.status(500).json({ message: 'Server error' });
     }
+  }
+
+  /**
+   * Trip POI image upload
+   * @param req
+   * @param res
+   * @param next
+   */
+  public fileUpload = async (req: Request, res: Response, next: NextFunction) => {
+    const params: aws.S3.PutObjectRequest = {
+      Bucket: this.S3_BUCKET,
+      Key: req.file.originalname,
+      Body: req.file.buffer,
+    };
+
+    this.s3.upload(params, (err: Error, data: aws.S3.ManagedUpload.SendData) => {
+      if (err) {
+        console.log(err.message);
+        res.status(422).send(err);
+      }
+
+      const signedParams: aws.S3.PutObjectRequest = {
+        Bucket: this.S3_BUCKET,
+        Key: req.file.originalname,
+      };
+
+      this.s3.getSignedUrl('getObject', signedParams, (uErr: Error, url: string) => {
+        if (uErr) {
+          console.log(uErr.message);
+          res.status(422).send(uErr);
+        }
+
+        res.json({ fileURL: url });
+      });
+    });
   }
 }
 

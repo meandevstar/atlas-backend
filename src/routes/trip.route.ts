@@ -20,6 +20,7 @@ class AuthRoute implements Route {
     this.router.get('/get/all/:userId', authMiddleware, this.tripController.getAllTrips);
     this.router.get('/get/:tripId', authMiddleware, this.tripController.getTripById);
     this.router.put('/update/:tripId', authMiddleware, this.tripController.updateTrip);
+    this.router.delete('/:tripId', authMiddleware, this.tripController.deleteTrip);
     this.router.post('/poi-img-upload', authMiddleware, this.upload.single('tripImage'), this.tripController.fileUploadToS3);
     this.router.delete('/poi-img-remove/:key', authMiddleware, this.tripController.fileRemoveFromS3);
   }

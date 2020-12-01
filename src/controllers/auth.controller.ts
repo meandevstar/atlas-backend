@@ -40,9 +40,22 @@ class AuthController {
 
       // Create user
       const userObj = await User.create(value);
-      res.status(200).json({
-        message: `${value.displayName} successfully signed up!`,
-      });
+      const userData = userObj.toObject();
+
+      // Generate token
+      const tokenData: DataStoredInToken = {
+        id: userData._id,
+        email: userData.email,
+      };
+      const token = jwt.sign(tokenData, Config.jwtSecret, Config.jwtExpires);
+
+      // Return
+      const data = {
+        _id         : userData._id,
+        email       : userData.email,
+        displayName : userData.displayName,
+      };
+      res.json({ token, user: data });
 
     } catch (err) {
       console.error(err);

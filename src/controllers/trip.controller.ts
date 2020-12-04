@@ -134,7 +134,7 @@ class TripController {
       const tripData = tripObj.toObject();
 
       for (const poi of tripData.data) {
-        if (poi.type && poi.type === 'poi') {
+        if (poi.type && poi.type === 'poi' && poi.photos) {
           for (const photo of poi.photos) {
             const params: aws.S3.DeleteObjectRequest = {
               Bucket: this.S3_BUCKET,

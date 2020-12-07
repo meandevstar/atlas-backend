@@ -5,19 +5,18 @@ import HttpException from '../exceptions/HttpException';
 import { IDataStoredInToken } from '../interfaces/auth.interface';
 import User from '../models/users.model';
 import { IRequest } from '../interfaces/common.interface';
+import Config from '../config';
 
 async function authMiddleware(req: IRequest, res: Response, next: NextFunction) {
   const authorization = req.headers.authorization;
 
   if (!authorization) {
-    return next(new HttpException(statusCodes.UNAUTHORIZED, 'Authentication token missing'));
+    return next(new HttpException(statusCodes.UNAUTHORIZED, 'Please sign in'));
   }
 
   if (authorization) {
-    const secret = process.env.JWT_SECRET;
-
     try {
-      const tokenData = jwt.verify(authorization.split(' ')[1], secret) as IDataStoredInToken;
+      const tokenData = jwt.verify(authorization.split(' ')[1], Config.jwtSecret) as IDataStoredInToken;
       const user = await User.findById(tokenData._id);
 
       if (!user) {
@@ -27,7 +26,7 @@ async function authMiddleware(req: IRequest, res: Response, next: NextFunction) 
       req.auth = user;
       next();
     } catch (error) {
-      next(new HttpException(statusCodes.UNAUTHORIZED, 'Wrong authentication token'));
+      next(new HttpException(statusCodes.UNAUTHORIZED, 'Session expired'));
     }
   }
 }

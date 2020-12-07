@@ -1,15 +1,15 @@
 import { Router } from 'express';
-import AuthController from '../controllers/auth.controller';
+import AuthModule from '../modules/auth.module';
 import { createController } from '../utils/util';
 import { IRoute } from '../interfaces/common.interface';
 import authMiddleware from '../middlewares/auth.middleware';
 import validate from '../middlewares/validate.middleware';
-import { signUpSchema, loginSchema } from '../validators/auth.validator';
+import { signUpSchema, loginSchema, verifyEmailSchema, resendVerifyEmailSchema } from '../validators/auth.validator';
 
 class AuthRoute implements IRoute {
   public path: string;
   public router = Router();
-  public authController = new AuthController();
+  public authModule = new AuthModule();
 
   constructor(path: string) {
     this.path = path;
@@ -17,9 +17,11 @@ class AuthRoute implements IRoute {
   }
 
   private initializeRoutes() {
-    this.router.post('/signup', validate(signUpSchema), createController(this.authController.signUp));
-    this.router.post('/signin', validate(loginSchema), createController(this.authController.signIn));
-    this.router.get('/check-token', authMiddleware, createController(this.authController.checkToken));
+    this.router.post('/signup', validate(signUpSchema), createController(this.authModule.signUp));
+    this.router.post('/signin', validate(loginSchema), createController(this.authModule.signIn));
+    this.router.get('/verify-email-token', validate(verifyEmailSchema), createController(this.authModule.verifyEmailToken));
+    this.router.get('/resend-verify-email', validate(resendVerifyEmailSchema), createController(this.authModule.sendVerifyEmail));
+    this.router.get('/check-token', authMiddleware, createController(this.authModule.checkToken));
   }
 }
 

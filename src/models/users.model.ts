@@ -1,18 +1,23 @@
 import { model, Schema } from 'mongoose';
 import { pick } from 'lodash';
 import * as bcrypt from 'bcrypt';
+import * as jwt from 'jsonwebtoken';
+import Config from '../config';
 import { SALT_ROUNDS } from '../constants';
-import { IDataStoredInToken } from '../interfaces/auth.interface';
 import { IDocument } from '../interfaces/common.interface';
+
 
 export interface IUser extends IDocument<IUser> {
   displayName: string;
   email: string;
   password: string;
+  verified: {
+    email: boolean;
+  }
   createdAt?: Date;
   updatedAt?: Date;
   verifyPassword: (password: string) => Promise<boolean>;
-  getTokenData: () => IDataStoredInToken;
+  getToken: () => string;
 }
 
 const userSchema: Schema = new Schema(
@@ -20,6 +25,9 @@ const userSchema: Schema = new Schema(
     displayName: { type: String },
     email: { type: String, trim: true, unique: true },
     password: { type: String },
+    verified: {
+      email: Boolean,
+    }
   },
   {
     timestamps: true,
@@ -35,13 +43,16 @@ userSchema.methods.getPublicData = function () {
   return pick(this, ['_id', 'email', 'displayName']);
 };
 
-userSchema.methods.getTokenData = function () {
-  return pick(this, ['_id', 'email']);
+userSchema.methods.getToken = function () {
+  return jwt.sign(pick(this, ['_id', 'email']), Config.jwtSecret, Config.jwtAuthExpires);
 };
 
 userSchema.pre<IUser>('save', async function (next) {
   this.email = this.email.toLowerCase().trim();
-  this.password = await bcrypt.hash(this.password, SALT_ROUNDS);
+
+  if (this.isNew) {
+    this.password = await bcrypt.hash(this.password, SALT_ROUNDS);
+  }
 
   next();
 });

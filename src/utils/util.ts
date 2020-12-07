@@ -66,14 +66,13 @@ export function createController(handler: Function) {
         ...req.body,
         ...req.query,
         ...req.params,
-        _auth: req.auth,
-        _headers: req.headers,
+        _req: req,
       };
       const result = await handler(data);
 
-      next(result);
+      next(result || 'OK');
     } catch (err) {
-      next(err);
+      next(HttpException.fromError(err));
     }
   }
 }

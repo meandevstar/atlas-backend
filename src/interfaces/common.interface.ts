@@ -4,8 +4,7 @@ import { Document } from 'mongoose';
 import { IUser } from '../models/users.model';
 
 export interface IControllerData {
-  _auth?: IUser;
-  _headers?: IncomingHttpHeaders;
+  _req?: IRequest;
   [key: string]: any;
 }
 
@@ -20,4 +19,10 @@ export interface IRoute {
 
 export interface IDocument<T> extends Document {
   getPublicData: () => Partial<T>;
+}
+
+export interface IEmailPayload {
+  receipients: string | string[];
+  subject: string;
+  body: string;
 }

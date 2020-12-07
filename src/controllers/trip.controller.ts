@@ -303,11 +303,10 @@ class TripController {
           from: 0,
           size: 5,
           query: {
-            match: {
-              name: {
-                query: value.poiName,
-                fuzziness: 1,
-              },
+            multi_match: {
+              fields: ['name', 'admin1_name', 'admin2_name', 'country_code'],
+              query: value.poiName,
+              fuzziness: '2',
             },
           },
         },

@@ -6,20 +6,22 @@ import * as hpp from 'hpp';
 import * as logger from 'morgan';
 import * as mongoose from 'mongoose';
 import Config from './config';
-import Routes from './interfaces/routes.interface';
+import { IRoute } from './interfaces/common.interface';
+import responseHandler from './middlewares/response.middleware';
 
 class App {
   public app: express.Application;
   public port: (string | number);
   public env: boolean;
 
-  constructor(routes: Routes[]) {
+  constructor(routes: IRoute[]) {
     this.app = express();
     this.port = Config.port;
     this.env = Config.NODE_ENV === 'production' ? true : false;
 
     this.initializeMiddlewares();
     this.initializeRoutes(routes);
+    this.app.use(responseHandler);
   }
 
   public listen() {
@@ -56,7 +58,7 @@ class App {
    * Setup route for app
    * @param routes
    */
-  private initializeRoutes(routes: Routes[]) {
+  private initializeRoutes(routes: IRoute[]) {
     routes.forEach((route) => {
       this.app.use(route.path, route.router);
     });

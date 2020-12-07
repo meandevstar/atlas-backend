@@ -1,10 +1,12 @@
 import { Router } from 'express';
 import AuthController from '../controllers/auth.controller';
-import Route from '../interfaces/routes.interface';
+import { createController } from '../utils/util';
+import { IRoute } from '../interfaces/common.interface';
 import authMiddleware from '../middlewares/auth.middleware';
-import validationMiddleware from '../middlewares/validation.middleware';
+import validate from '../middlewares/validate.middleware';
+import { signUpSchema, loginSchema } from '../validators/auth.validator';
 
-class AuthRoute implements Route {
+class AuthRoute implements IRoute {
   public path: string;
   public router = Router();
   public authController = new AuthController();
@@ -15,9 +17,9 @@ class AuthRoute implements Route {
   }
 
   private initializeRoutes() {
-    this.router.post('/signup', this.authController.signUp);
-    this.router.post('/signin', this.authController.signIn);
-    this.router.get('/check-token', authMiddleware, this.authController.checkToken);
+    this.router.post('/signup', validate(signUpSchema), createController(this.authController.signUp));
+    this.router.post('/signin', validate(loginSchema), createController(this.authController.signIn));
+    this.router.get('/check-token', authMiddleware, createController(this.authController.checkToken));
   }
 }
 

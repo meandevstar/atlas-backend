@@ -1,11 +1,14 @@
-import { Request } from 'express';
-
-export interface DataStoredInToken {
-  id: string;
+export interface IDataStoredInToken {
+  _id: string;
   email: string;
 }
 
-export interface TokenData {
+export interface ITokenData {
   token: string;
   expiresIn: number;
+}
+
+export interface ISignInData {
+  email: string;
+  password: string;
 }

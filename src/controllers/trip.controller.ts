@@ -4,11 +4,22 @@ import Trip from '../models/trips.model';
 import Config from '../config';
 import * as aws from 'aws-sdk';
 import { v4 as uuidv4 } from 'uuid';
+import { Client } from '@elastic/elasticsearch';
+import { Source, SearchResponse } from '../interfaces/poi.interface';
 
 class TripController {
 
   private s3 = new aws.S3();
   private S3_BUCKET = Config.awsS3Bucket;
+  private esClient = new Client({
+    cloud: {
+      id: Config.esCloudId,
+    },
+    auth: {
+      username: Config.esUsername,
+      password: Config.esPassword,
+    },
+  });
 
   constructor() {
     aws.config.update({
@@ -267,6 +278,49 @@ class TripController {
 
       res.status(200).json({ message: 'Successfully removed' });
     });
+  }
+
+  /**
+   * Search POIs by given name, ElasticSearch implemented
+   */
+  public searchPoiByName = async (req: Request, res: Response, next: NextFunction) => {
+    // Validate data from request object
+    const schema = Joi.object({
+      poiName: Joi.string().required(),
+    });
+    const { error, value } = schema.validate(req.params);
+
+    // Error handling
+    if (error) {
+      const message = error.details.length > 0 ? error.details[0].message : 'Invalid request';
+      return res.status(400).json({ message });
+    }
+
+    try {
+      const result = await this.esClient.search<SearchResponse<Source>>({
+        index: 'geonames-poi',
+        body: {
+          from: 0,
+          size: 5,
+          query: {
+            match: {
+              name: {
+                query: value.poiName,
+                fuzziness: 1,
+              },
+            },
+          },
+        },
+      });
+
+      res.json({
+        pois: result.body.hits.hits,
+      });
+
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Server error' });
+    }
   }
 }
 

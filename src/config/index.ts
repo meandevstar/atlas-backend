@@ -24,6 +24,9 @@ const config = {
     awsSecretAccessKey  : process.env.AWS_SECRET_ACCESS_KEY,
     awsS3Bucket         : process.env.S3_BUCKET,
     awsRegion           : process.env.AWS_REGION,
+    esCloudId           : process.env.ES_CLOUD_ID,
+    esUsername          : process.env.ES_USERNAME,
+    esPassword          : process.env.ES_PASSWORD,
   },
 };
 

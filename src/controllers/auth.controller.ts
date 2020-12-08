@@ -148,6 +148,84 @@ class AuthController {
       res.status(500).json({ message: 'Server error' });
     }
   }
+
+  /**
+   * User signUp
+   * @param req
+   * @param res
+   * @param next
+   */
+  public updateUser = async (req: Request, res: Response, next: NextFunction) => {
+    // Validate data from request object
+    const schema = Joi.object({
+      oldEmail      : Joi.string().email().required(),
+      newEmail      : Joi.string().email().required(),
+      displayName   : Joi.string().required(),
+      newPassword   : Joi.string().allow(''),
+      oldPassword   : Joi.string().allow(''),
+    });
+    const { error, value } = schema.validate(req.body);
+
+    // Error handling
+    if (error) {
+      const message = error.details.length > 0 ? error.details[0].message : 'Invalid request';
+      return res.status(400).json({ message });
+    }
+    value.oldEmail = value.oldEmail.toLowerCase().trim();
+    value.newEmail = value.newEmail.toLowerCase().trim();
+
+    try {
+      const userObj = await User.findOne({ email: value.oldEmail }, {});
+      if (!userObj) {
+        return res.status(401).json({ message: 'No user with that email registered' });
+      }
+
+      // Validate old password
+      const userData = userObj.toObject();
+
+      if (value.oldPassword) {
+        const match = await bcrypt.compare(value.oldPassword, userData.password);
+        if (!match) {
+          return res.status(401).json({ message: 'Password is not correct!' });
+        }
+
+        value.newPassword = await bcrypt.hash(value.newPassword, SALT_ROUNDS);
+
+        // Update user
+        await User.update({ email: value.oldEmail }, {
+          email: value.newEmail,
+          password: value.newPassword,
+          displayName: value.displayName,
+        });
+
+      } else {
+        // Update user
+        await User.update({ email: value.oldEmail }, {
+          email: value.newEmail,
+          displayName: value.displayName,
+        });
+      }
+
+      // Generate token
+      const tokenData: DataStoredInToken = {
+        id: userData._id,
+        email: value.newEmail,
+      };
+      const token = jwt.sign(tokenData, Config.jwtSecret, Config.jwtExpires);
+
+      // Return
+      const data = {
+        _id         : userData._id,
+        email       : value.newEmail,
+        displayName : value.displayName,
+      };
+      res.json({ token, user: data });
+
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Server error' });
+    }
+  }
 }
 
 export default AuthController;

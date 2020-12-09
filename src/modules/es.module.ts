@@ -16,7 +16,7 @@ class ESModule {
   public search: (params: any) => { body: SearchResponse<Source> };
 
   constructor() {
-    this.search = this.client.search.bind(this);
+    this.search = this.client.search.bind(this.client);
   }
 
 }

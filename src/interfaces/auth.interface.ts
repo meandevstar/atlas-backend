@@ -9,6 +9,11 @@ export interface IDataStoredInEmailToken {
   id: string;
 }
 
+export interface IDataStoredInPasswordToken {
+  id: string;
+  password: string;
+}
+
 export interface ITokenData {
   token: string;
   expiresIn: number;

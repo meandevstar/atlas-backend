@@ -4,13 +4,13 @@ import Config from '../config';
 import {
   IAuthResponse,
   IDataStoredInEmailToken,
+  IDataStoredInPasswordToken,
   ISignInData,
 } from '../interfaces/auth.interface';
 import { createError } from '../utils/util';
 import statusCodes from '../utils/statusCodes';
 import { IControllerData, IEmailPayload } from 'interfaces/common.interface';
 import SESModule from './ses.module';
-import { exist } from 'joi';
 
 class AuthModule {
   private ses: SESModule;
@@ -128,7 +128,7 @@ class AuthModule {
       // Generate token
       const tokenPayload: IDataStoredInEmailToken = { id: _id };
 
-      const emailToken = jwt.sign(
+      const token = jwt.sign(
         tokenPayload,
         Config.jwtSecret,
         Config.jwtEmailTokenExpires
@@ -136,7 +136,60 @@ class AuthModule {
 
       const emailPayload: IEmailPayload = {
         subject: 'Verify your email',
-        body: `Please verify your email by clicking following <a href="${Config.frontUrl}/email-validation?token=${emailToken}">link</a>`,
+        body: `Please verify your email by clicking following <a href="${Config.frontUrl}/email-validation?token=${token}">link</a>`,
+        receipients: payload.email,
+      };
+
+      await this.ses.sendEmail(emailPayload);
+
+      return {
+        message: 'Email sent successfully',
+      };
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public verifyPasswordToken = async (payload: IControllerData) => {
+    const { token, password } = payload;
+
+    try {
+      const { id } = jwt.verify(
+        token,
+        Config.jwtSecret
+      ) as IDataStoredInEmailToken;
+      const user = await User.findById(id);
+
+      user.password = password;
+      await user.save();
+
+      return {
+        message: 'Password reset successfully'
+      };
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  public sendResetPasswordEmail = async (payload: Partial<IUser> | IControllerData) => {
+    try {
+      const user = await User.findOne({ email: payload.email }).lean();
+      if (!user) {
+        throw createError(statusCodes.NOT_FOUND, 'Email not found');
+      }
+
+      // Generate token
+      const tokenPayload: IDataStoredInPasswordToken = { id: user._id, password: user.password };
+
+      const token = jwt.sign(
+        tokenPayload,
+        Config.jwtSecret,
+        Config.jwtEmailTokenExpires
+      );
+
+      const emailPayload: IEmailPayload = {
+        subject: 'Reset Password',
+        body: `Reset your password by clicking following <a href="${Config.frontUrl}/reset-password?token=${token}">link</a>`,
         receipients: payload.email,
       };
 

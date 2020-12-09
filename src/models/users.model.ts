@@ -50,9 +50,6 @@ userSchema.methods.getToken = function () {
 userSchema.pre<IUser>('save', async function (next) {
   this.email = this.email.toLowerCase().trim();
 
-  console.log('==> new', this.isNew);
-  console.log('==> modified paths', this.modifiedPaths());
-
   if (this.isNew || this.modifiedPaths().includes('password')) {
     this.password = await bcrypt.hash(this.password, SALT_ROUNDS);
   }

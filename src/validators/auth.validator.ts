@@ -1,9 +1,10 @@
 import * as Joi from 'joi';
+import { REGEX } from '../utils/util';
 
 export const signUpSchema = {
   displayName : Joi.string().required(),
   email : Joi.string().email().required(),
-  password : Joi.string().required(),
+  password : Joi.string().regex(REGEX.email).required(),
 };
 
 export const loginSchema = {

@@ -3,6 +3,10 @@ import { IControllerData, IRequest } from '../interfaces/common.interface';
 import HttpException from '../exceptions/HttpException';
 import statusCodes from './statusCodes';
 
+export const REGEX = {
+  email: /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}/,
+};
+
 export function isEmptyObject (obj: object): boolean {
   return !Object.keys(obj).length;
 };

@@ -10,10 +10,11 @@ import { IDocument } from '../interfaces/common.interface';
 export interface IUser extends IDocument<IUser> {
   displayName: string;
   email: string;
+  username: string;
   password: string;
   verified: {
     email: boolean;
-  }
+  };
   createdAt?: Date;
   updatedAt?: Date;
   verifyPassword: (password: string) => Promise<boolean>;
@@ -24,6 +25,7 @@ const userSchema: Schema = new Schema(
   {
     displayName: { type: String },
     email: { type: String, trim: true, unique: true },
+    username: { type: String, trim: true, unique: true },
     password: { type: String },
     verified: {
       email: Boolean,

@@ -110,7 +110,9 @@ class AuthModule {
     }
   };
 
-  public sendVerifyEmail = async (payload: Partial<IUser> | IControllerData) => {
+  public sendVerifyEmail = async (
+    payload: Partial<IUser> | IControllerData
+  ) => {
     try {
       let { _id, email } = payload;
       let user;
@@ -148,7 +150,7 @@ class AuthModule {
     } catch (err) {
       throw err;
     }
-  }
+  };
 
   public verifyPasswordToken = async (payload: IControllerData) => {
     const { token, password } = payload;
@@ -164,14 +166,16 @@ class AuthModule {
       await user.save();
 
       return {
-        message: 'Password reset successfully'
+        message: 'Password reset successfully',
       };
     } catch (err) {
       throw err;
     }
   };
 
-  public sendResetPasswordEmail = async (payload: Partial<IUser> | IControllerData) => {
+  public sendResetPasswordEmail = async (
+    payload: Partial<IUser> | IControllerData
+  ) => {
     try {
       const user = await User.findOne({ email: payload.email }).lean();
       if (!user) {
@@ -179,7 +183,10 @@ class AuthModule {
       }
 
       // Generate token
-      const tokenPayload: IDataStoredInPasswordToken = { id: user._id, password: user.password };
+      const tokenPayload: IDataStoredInPasswordToken = {
+        id: user._id,
+        password: user.password,
+      };
 
       const token = jwt.sign(
         tokenPayload,
@@ -201,7 +208,7 @@ class AuthModule {
     } catch (err) {
       throw err;
     }
-  }
+  };
 
   public updateUser = async ({ _req, ...value }: IControllerData) => {
     value.oldEmail = value.oldEmail.toLowerCase().trim();
@@ -210,14 +217,20 @@ class AuthModule {
     try {
       const user = await User.findOne({ email: value.oldEmail });
       if (!user) {
-        throw createError(statusCodes.UNAUTHORIZED, 'No user with that email registered');
+        throw createError(
+          statusCodes.UNAUTHORIZED,
+          'No user with that email registered'
+        );
       }
 
       // Validate old password
       if (value.oldPassword) {
         const match = await user.verifyPassword(value.oldPassword);
         if (!match) {
-          throw createError(statusCodes.UNAUTHORIZED, 'Password is not correct!');
+          throw createError(
+            statusCodes.UNAUTHORIZED,
+            'Password is not correct!'
+          );
         }
 
         user.password = value.newPassword;
@@ -232,11 +245,11 @@ class AuthModule {
         token: user.getToken(),
         user: user.getPublicData(),
       };
-
     } catch (err) {
       throw err;
     }
-  }
+  };
+
 }
 
 export default AuthModule;

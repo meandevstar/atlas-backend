@@ -7,10 +7,9 @@ import { createError } from '../utils/util';
 import ESModule from './es.module';
 
 class TripModule {
-
   private s3: S3Module;
   private esClient = new ESModule();
-  
+
   constructor() {
     this.s3 = new S3Module();
   }
@@ -18,9 +17,16 @@ class TripModule {
   /**
    * Create new trip
    */
-  public createTrip = async (payload: Partial<ITrip>) => {
+  public createTrip = async ({
+    _req: { auth },
+    ...payload
+  }: IControllerData) => {
     try {
-      const trip = await new Trip(payload).save();
+      const newPayload = {
+        ...payload,
+        user: auth._id,
+      };
+      const trip = await new Trip(newPayload).save();
 
       return trip.getPublicData();
     } catch (err) {
@@ -31,7 +37,7 @@ class TripModule {
   /**
    * Update trip
    */
-  public updateTrip = async (payload: IControllerData) => {
+  public updateTrip = async ({ _req, ...payload }: IControllerData) => {
     const { tripId, ...newPayload } = payload;
 
     try {
@@ -80,9 +86,10 @@ class TripModule {
   /**
    * Get all trips for given user
    */
-  public getAllTrips = async (payload: IControllerData) => {
+  public getAllTrips = async ({ _req: { auth } }: IControllerData) => {
     try {
-      const data = await Trip.find({ user: payload.userId }).lean();
+      console.log(auth._id);
+      const data = await Trip.find({ user: auth._id }).lean();
 
       return { data };
     } catch (err) {
@@ -122,7 +129,7 @@ class TripModule {
 
       return {
         fileURL: data.Location,
-        fileKey: key
+        fileKey: key,
       };
     } catch (err) {
       throw err;
@@ -152,7 +159,11 @@ class TripModule {
    */
   public searchPoiByName = async ({ poiName }: IControllerData) => {
     try {
-      const result = await this.esClient.search({
+      const {
+        body: {
+          hits: { hits },
+        },
+      } = await this.esClient.search({
         index: 'geonames-poi',
         body: {
           from: 0,
@@ -167,9 +178,7 @@ class TripModule {
         },
       });
 
-      return {
-        pois: result.body.hits.hits,
-      };
+      return { pois: hits };
     } catch (err) {
       throw err;
     }

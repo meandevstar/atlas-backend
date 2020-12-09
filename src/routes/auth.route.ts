@@ -61,7 +61,7 @@ class AuthRoute implements IRoute {
       createController(this.authModule.checkToken)
     );
     this.router.put(
-      '/profile-update',
+      '/profile',
       authMiddleware,
       validate(updateUserSchema),
       createController(this.authModule.updateUser)

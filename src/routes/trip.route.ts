@@ -26,25 +26,29 @@ class TripRoute implements IRoute {
 
   private initializeRoutes() {
     this.router.post(
-      '/create',
+      '/',
       authMiddleware,
       validate(createSchema),
       createController(this.tripModule.createTrip)
     );
     this.router.get(
-      '/get/all/:userId',
+      '/mine',
       authMiddleware,
-      validate(userIdSchema),
       createController(this.tripModule.getAllTrips)
     );
     this.router.get(
-      '/get/:tripId',
+      '/search-poi',
+      validate(searchByNameSchema),
+      createController(this.tripModule.searchPoiByName)
+    );
+    this.router.get(
+      '/:tripId',
       authMiddleware,
       validate(tripIdSchema),
       createController(this.tripModule.getTripById)
     );
     this.router.put(
-      '/update/:tripId',
+      '/:tripId',
       authMiddleware,
       validate(updateSchema),
       createController(this.tripModule.updateTrip)
@@ -59,17 +63,12 @@ class TripRoute implements IRoute {
       '/poi-img-upload',
       authMiddleware,
       this.upload.single('tripImage'),
-      this.tripModule.fileUploadToS3
+      createController(this.tripModule.fileUploadToS3)
     );
     this.router.delete(
       '/poi-img-remove/:key',
       authMiddleware,
-      this.tripModule.fileRemoveFromS3
-    );
-    this.router.get(
-      '/search-poi/:poiName',
-      validate(searchByNameSchema),
-      createController(this.tripModule.searchPoiByName)
+      createController(this.tripModule.fileRemoveFromS3)
     );
   }
 }

@@ -21,8 +21,12 @@ const tripSchema = new Schema(
   {
     timestamps: true,
     autoIndex: process.env.MONGO_AUTO_INDEX === '1',
+    versionKey: false,
   }
 );
+
+tripSchema.index({ user: 1 });
+tripSchema.index({ published: 1 });
 
 tripSchema.methods.getPublicData = function () {
   return pick(this, ['_id', 'user', 'tripName', 'data', 'published']);

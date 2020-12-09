@@ -4,7 +4,7 @@ import { createController } from '../utils/util';
 import { IRoute } from '../interfaces/common.interface';
 import authMiddleware from '../middlewares/auth.middleware';
 import validate from '../middlewares/validate.middleware';
-import { signUpSchema, loginSchema, verifyEmailSchema, resendVerifyEmailSchema } from '../validators/auth.validator';
+import { signUpSchema, loginSchema, verifyEmailSchema, resendVerifyEmailSchema, updateUserSchema } from '../validators/auth.validator';
 
 class AuthRoute implements IRoute {
   public path: string;
@@ -22,6 +22,7 @@ class AuthRoute implements IRoute {
     this.router.get('/verify-email-token', validate(verifyEmailSchema), createController(this.authModule.verifyEmailToken));
     this.router.get('/resend-verify-email', validate(resendVerifyEmailSchema), createController(this.authModule.sendVerifyEmail));
     this.router.get('/check-token', authMiddleware, createController(this.authModule.checkToken));
+    this.router.put('/profile-update', authMiddleware, validate(updateUserSchema), createController(this.authModule.updateUser));
   }
 }
 

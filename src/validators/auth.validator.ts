@@ -18,3 +18,11 @@ export const verifyEmailSchema = {
 export const resendVerifyEmailSchema = {
   email: Joi.string().email().required(),
 };
+
+export const updateUserSchema = {
+  oldEmail      : Joi.string().email().required(),
+  newEmail      : Joi.string().email().required(),
+  displayName   : Joi.string().required(),
+  newPassword   : Joi.string().allow(''),
+  oldPassword   : Joi.string().allow(''),
+};

@@ -6,10 +6,12 @@ import S3Module from './s3.module';
 import { IControllerData } from '../interfaces/common.interface';
 import statusCodes from '../utils/statusCodes';
 import { createError } from '../utils/util';
+import ESModule from './es.module';
 
 class TripModule {
 
   private s3: S3Module;
+  private esClient = new ESModule();
   
   constructor() {
     this.s3 = new S3Module();
@@ -142,6 +144,34 @@ class TripModule {
       await this.s3.deleteObject(fileKey);
 
       return { message: 'Successfully removed' };
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  /**
+   * Search POIs by given name, ElasticSearch implemented
+   */
+  public searchPoiByName = async ({ poiName }: IControllerData) => {
+    try {
+      const result = await this.esClient.search({
+        index: 'geonames-poi',
+        body: {
+          from: 0,
+          size: 5,
+          query: {
+            multi_match: {
+              fields: ['name', 'admin1_name', 'admin2_name', 'country_code'],
+              query: poiName,
+              fuzziness: '2',
+            },
+          },
+        },
+      });
+
+      return {
+        pois: result.body.hits.hits,
+      };
     } catch (err) {
       throw err;
     }

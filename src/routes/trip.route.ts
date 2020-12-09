@@ -5,7 +5,7 @@ import TripModule from '../modules/trip.module';
 import { IRoute } from '../interfaces/common.interface';
 import authMiddleware from '../middlewares/auth.middleware';
 import validate from '../middlewares/validate.middleware';
-import { createSchema, tripIdSchema, updateSchema, userIdSchema } from '../validators/trip.validator';
+import { createSchema, tripIdSchema, updateSchema, userIdSchema, searchByNameSchema } from '../validators/trip.validator';
 
 class TripRoute implements IRoute {
   public path: string;
@@ -26,6 +26,7 @@ class TripRoute implements IRoute {
     this.router.delete('/:tripId', authMiddleware, validate(tripIdSchema), createController(this.tripModule.deleteTrip));
     this.router.post('/poi-img-upload', authMiddleware, this.upload.single('tripImage'), this.tripModule.fileUploadToS3);
     this.router.delete('/poi-img-remove/:key', authMiddleware, this.tripModule.fileRemoveFromS3);
+    this.router.get('/search-poi/:poiName', validate(searchByNameSchema), createController(this.tripModule.searchPoiByName));
   }
 }
 

@@ -29,6 +29,9 @@ const config = {
     awsRegion           : process.env.AWS_REGION,
     systemEmail: process.env.SYSTEM_EMAIL,
     frontUrl: process.env.FRONT_URL,
+    esCloudId           : process.env.ES_CLOUD_ID,
+    esUsername          : process.env.ES_USERNAME,
+    esPassword          : process.env.ES_PASSWORD,
   },
 };
 

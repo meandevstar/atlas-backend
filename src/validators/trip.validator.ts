@@ -20,3 +20,7 @@ export const tripIdSchema = {
 export const userIdSchema = {
   userId: Joi.string().required(),
 };
+
+export const searchByNameSchema = {
+  poiName: Joi.string().required(),
+};

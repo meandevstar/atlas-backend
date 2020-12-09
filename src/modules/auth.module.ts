@@ -111,39 +111,78 @@ class AuthModule {
   };
 
   public sendVerifyEmail = async (payload: Partial<IUser> | IControllerData) => {
-    let { _id, email } = payload;
-    let user;
+    try {
+      let { _id, email } = payload;
+      let user;
 
-    if (!_id) {
-      user = await User.findOne({ email });
+      if (!_id) {
+        user = await User.findOne({ email });
 
-      if (!user) {
-        throw createError(statusCodes.NOT_FOUND, 'Email not found');
+        if (!user) {
+          throw createError(statusCodes.NOT_FOUND, 'Email not found');
+        }
+
+        _id = user._id;
       }
 
-      _id = user._id;
+      // Generate token
+      const tokenPayload: IDataStoredInEmailToken = { id: _id };
+
+      const emailToken = jwt.sign(
+        tokenPayload,
+        Config.jwtSecret,
+        Config.jwtEmailTokenExpires
+      );
+
+      const emailPayload: IEmailPayload = {
+        subject: 'Verify your email',
+        body: `Please verify your email by clicking following <a href="${Config.frontUrl}/email-validation?token=${emailToken}">link</a>`,
+        receipients: payload.email,
+      };
+
+      await this.ses.sendEmail(emailPayload);
+
+      return {
+        message: 'Email sent successfully',
+      };
+    } catch (err) {
+      throw err;
     }
+  }
 
-    // Generate token
-    const tokenPayload: IDataStoredInEmailToken = { id: _id };
+  public updateUser = async ({ _req, ...value }: IControllerData) => {
+    value.oldEmail = value.oldEmail.toLowerCase().trim();
+    value.newEmail = value.newEmail.toLowerCase().trim();
 
-    const emailToken = jwt.sign(
-      tokenPayload,
-      Config.jwtSecret,
-      Config.jwtEmailTokenExpires
-    );
+    try {
+      const user = await User.findOne({ email: value.oldEmail });
+      if (!user) {
+        throw createError(statusCodes.UNAUTHORIZED, 'No user with that email registered');
+      }
 
-    const emailPayload: IEmailPayload = {
-      subject: 'Verify your email',
-      body: `Please verify your email by clicking following <a href="${Config.frontUrl}/email-validation?token=${emailToken}">link</a>`,
-      receipients: payload.email,
-    };
+      // Validate old password
+      if (value.oldPassword) {
+        const match = await user.verifyPassword(value.oldPassword);
+        if (!match) {
+          throw createError(statusCodes.UNAUTHORIZED, 'Password is not correct!');
+        }
 
-    await this.ses.sendEmail(emailPayload);
+        user.password = value.newPassword;
+      }
 
-    return {
-      message: 'Email sent successfully',
-    };
+      user.email = value.newEmail;
+      user.displayName = value.displayName;
+
+      await user.save();
+
+      return {
+        token: user.getToken(),
+        user: user.getPublicData(),
+      };
+
+    } catch (err) {
+      throw err;
+    }
   }
 }
 

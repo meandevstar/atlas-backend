@@ -1,11 +1,25 @@
-import { Request } from 'express';
+import { IUser } from 'models/users.model';
 
-export interface DataStoredInToken {
-  id: string;
+export interface IDataStoredInToken {
+  _id: string;
   email: string;
 }
 
-export interface TokenData {
+export interface IDataStoredInEmailToken {
+  id: string;
+}
+
+export interface ITokenData {
   token: string;
   expiresIn: number;
+}
+
+export interface ISignInData {
+  email: string;
+  password: string;
+}
+
+export interface IAuthResponse {
+  token?: string;
+  user: Partial<IUser>;
 }

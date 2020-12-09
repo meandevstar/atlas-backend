@@ -1,30 +1,33 @@
 import { NextFunction, Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
+import statusCodes from '../utils/statusCodes';
 import HttpException from '../exceptions/HttpException';
-import { DataStoredInToken } from '../interfaces/auth.interface';
+import { IDataStoredInToken } from '../interfaces/auth.interface';
 import User from '../models/users.model';
+import { IRequest } from '../interfaces/common.interface';
+import Config from '../config';
 
-function authMiddleware(req: Request, res: Response, next: NextFunction) {
+async function authMiddleware(req: IRequest, res: Response, next: NextFunction) {
   const authorization = req.headers.authorization;
 
+  if (!authorization) {
+    return next(new HttpException(statusCodes.UNAUTHORIZED, 'Please sign in'));
+  }
+
   if (authorization) {
-    const secret = process.env.JWT_SECRET;
-
     try {
-      const verificationResponse = jwt.verify(authorization.split(' ')[1], secret) as DataStoredInToken;
-      const userData = verificationResponse;
-      const findUser = User.findOne({ id: userData.id });
+      const tokenData = jwt.verify(authorization.split(' ')[1], Config.jwtSecret) as IDataStoredInToken;
+      const user = await User.findById(tokenData._id);
 
-      if (findUser) {
-        next();
-      } else {
-        next(new HttpException(401, 'Wrong authentication token'));
+      if (!user) {
+        throw new Error();
       }
+
+      req.auth = user;
+      next();
     } catch (error) {
-      next(new HttpException(401, 'Wrong authentication token'));
+      next(new HttpException(statusCodes.UNAUTHORIZED, 'Session expired'));
     }
-  } else {
-    next(new HttpException(404, 'Authentication token missing'));
   }
 }
 

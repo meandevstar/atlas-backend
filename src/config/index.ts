@@ -17,13 +17,18 @@ const config = {
     databaseUrl   : process.env.DB_URI,
     port          : process.env.PORT || 3000,
     jwtSecret     : process.env.JWT_SECRET,
-    jwtExpires    : {
-      expiresIn: process.env.JWT_EXPIRES,
+    jwtAuthExpires    : {
+      expiresIn: process.env.JWT_AUTH_EXPIRES,
+    },
+    jwtEmailTokenExpires    : {
+      expiresIn: process.env.JWT_EMAIL_TOKEN_EXPIRES,
     },
     awsAccessKeyId      : process.env.AWS_ACCESS_KEY_ID,
     awsSecretAccessKey  : process.env.AWS_SECRET_ACCESS_KEY,
     awsS3Bucket         : process.env.S3_BUCKET,
     awsRegion           : process.env.AWS_REGION,
+    systemEmail: process.env.SYSTEM_EMAIL,
+    frontUrl: process.env.FRONT_URL,
     esCloudId           : process.env.ES_CLOUD_ID,
     esUsername          : process.env.ES_USERNAME,
     esPassword          : process.env.ES_PASSWORD,

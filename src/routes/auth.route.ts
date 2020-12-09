@@ -1,13 +1,15 @@
 import { Router } from 'express';
-import AuthController from '../controllers/auth.controller';
-import Route from '../interfaces/routes.interface';
+import AuthModule from '../modules/auth.module';
+import { createController } from '../utils/util';
+import { IRoute } from '../interfaces/common.interface';
 import authMiddleware from '../middlewares/auth.middleware';
-import validationMiddleware from '../middlewares/validation.middleware';
+import validate from '../middlewares/validate.middleware';
+import { signUpSchema, loginSchema, verifyEmailSchema, resendVerifyEmailSchema, updateUserSchema } from '../validators/auth.validator';
 
-class AuthRoute implements Route {
+class AuthRoute implements IRoute {
   public path: string;
   public router = Router();
-  public authController = new AuthController();
+  public authModule = new AuthModule();
 
   constructor(path: string) {
     this.path = path;
@@ -15,10 +17,12 @@ class AuthRoute implements Route {
   }
 
   private initializeRoutes() {
-    this.router.post('/signup', this.authController.signUp);
-    this.router.post('/signin', this.authController.signIn);
-    this.router.get('/check-token', authMiddleware, this.authController.checkToken);
-    this.router.put('/profile-update', authMiddleware, this.authController.updateUser);
+    this.router.post('/signup', validate(signUpSchema), createController(this.authModule.signUp));
+    this.router.post('/signin', validate(loginSchema), createController(this.authModule.signIn));
+    this.router.get('/verify-email-token', validate(verifyEmailSchema), createController(this.authModule.verifyEmailToken));
+    this.router.get('/resend-verify-email', validate(resendVerifyEmailSchema), createController(this.authModule.sendVerifyEmail));
+    this.router.get('/check-token', authMiddleware, createController(this.authModule.checkToken));
+    this.router.put('/profile-update', authMiddleware, validate(updateUserSchema), createController(this.authModule.updateUser));
   }
 }
 

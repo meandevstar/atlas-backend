@@ -1,10 +1,31 @@
-import * as mongoose from 'mongoose';
+import { pick } from 'lodash';
+import { IDocument } from '../interfaces/common.interface';
+import { Types, Schema, model } from 'mongoose';
 
-const tripSchema = new mongoose.Schema({
-  tripName    : { type: String },
-  data        : { type: Array },
-  userId      : { type: String },
-  published   : { type: Boolean },
-});
+export interface ITrip extends IDocument<ITrip> {
+  tripName: string;
+  data: any[];
+  user: Types.ObjectId | string;
+  published: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
 
-export default mongoose.model('Trip', tripSchema);
+const tripSchema = new Schema(
+  {
+    tripName: { type: String },
+    data: { type: Array },
+    user: { type: Types.ObjectId, ref: 'User' },
+    published: { type: Boolean },
+  },
+  {
+    timestamps: true,
+    autoIndex: process.env.MONGO_AUTO_INDEX === '1',
+  }
+);
+
+tripSchema.methods.getPublicData = function () {
+  return pick(this, ['_id', 'user', 'tripName', 'data', 'published']);
+};
+
+export default model<ITrip>('Trip', tripSchema);
